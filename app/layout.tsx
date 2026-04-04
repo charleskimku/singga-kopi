@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning={true} className={`${outfit.variable} h-full antialiased dark`}>
-      <body suppressHydrationWarning={true} className="font-sans bg-black text-white min-h-full flex flex-col overscroll-none">
+      <body suppressHydrationWarning={true} className="font-sans bg-black text-white min-h-full flex flex-col overscroll-none relative">
         {children}
       </body>
     </html>
