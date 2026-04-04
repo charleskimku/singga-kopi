@@ -1,183 +1,243 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
 export default function SequenceScroll() {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const container = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const maxFrames = 192;
   const [images, setImages] = useState<HTMLImageElement[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [mounted, setMounted] = useState(false);
 
-  // Track scroll position inside the container
+  // Total frames in the sequence based on public/sequence files
+  const frameCount = 192;
+
   const { scrollYProgress } = useScroll({
-    target: containerRef,
+    target: container,
     offset: ["start start", "end end"],
   });
 
-  // Preload images into memory
+  // Smooth scroll progress (Lerp/Momentum) for cinematic feel
+  const smoothProgress = useSpring(scrollYProgress, {
+    stiffness: 100,
+    damping: 30,
+    restDelta: 0.001
+  });
+
+  // Start from frame 80 for peak visual impact in the hero section
+  const currentIndex = useTransform(smoothProgress, [0, 1], [80, frameCount - 1]);
+
   useEffect(() => {
-    setTimeout(() => setMounted(true), 0);
-    const loadedImages: HTMLImageElement[] = [];
-    let loadedCount = 0;
-
-    for (let i = 1; i <= maxFrames; i++) {
-      const img = new Image();
-      const indexStr = i.toString().padStart(3, "0");
-      img.src = `/sequence/ezgif-frame-${indexStr}.jpg`;
-
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === maxFrames) {
-          setImages(loadedImages);
-          setIsLoading(false);
-        }
-      };
-      
-      loadedImages.push(img);
-    }
+    setMounted(true);
   }, []);
 
-  // Map scroll progress to a frame index (1 to maxFrames), then wrap it in motion value subscription
-  const frameIndex = useTransform(scrollYProgress, [0, 1], [0, maxFrames - 1]);
-
   useEffect(() => {
-    if (!canvasRef.current || images.length !== maxFrames) return;
-
-    const ctx = canvasRef.current.getContext("2d", { alpha: false });
-    if (!ctx) return;
-
-    // Set canvas dimensions dynamically with High-DPI support
-    const updateCanvasSize = () => {
-      if (canvasRef.current) {
-        const dpr = window.devicePixelRatio || 1;
-        canvasRef.current.width = window.innerWidth * dpr;
-        canvasRef.current.height = window.innerHeight * dpr;
-        canvasRef.current.style.width = `${window.innerWidth}px`;
-        canvasRef.current.style.height = `${window.innerHeight}px`;
-        ctx.scale(dpr, dpr);
-      }
+    if (!mounted) return;
+    
+    const getFrameUrl = (index: number) => {
+      const paddedIndex = index.toString().padStart(3, '0');
+      return `/sequence/ezgif-frame-${paddedIndex}.jpg`;
     };
 
-    updateCanvasSize();
-    window.addEventListener("resize", updateCanvasSize);
+    const loadImages = async () => {
+      const loaded: HTMLImageElement[] = [];
+      const promises: Promise<void>[] = [];
 
-    // Initial draw
-    const drawImage = (img: HTMLImageElement) => {
-      if (!canvasRef.current || !ctx) return;
+      // Phase 1: Load the initial frame (80) immediately for instant display on reload
+      const initialFrame = 80;
+      const initialImg = new Image();
+      initialImg.src = getFrameUrl(initialFrame);
       
-      const width = canvasRef.current.width / (window.devicePixelRatio || 1);
-      const height = canvasRef.current.height / (window.devicePixelRatio || 1);
-      
-      const canvasRatio = width / height;
-      const imgRatio = img.width / img.height;
-      
-      let drawWidth = width;
-      let drawHeight = height;
-      let offsetX = 0;
-      let offsetY = 0;
+      const initialPromise = new Promise<void>((resolve) => {
+        initialImg.onload = () => {
+          loaded[initialFrame] = initialImg;
+          setImages([...loaded]); // Trigger first render immediately
+          resolve();
+        };
+        initialImg.onerror = () => resolve();
+      });
 
-      // Cover-fit logic
-      if (canvasRatio > imgRatio) {
-        drawHeight = width / imgRatio;
-        offsetY = (height - drawHeight) / 2;
-      } else {
-        drawWidth = height * imgRatio;
-        offsetX = (width - drawWidth) / 2;
+      // Phase 2: Load the rest in the background
+      for (let i = 1; i <= frameCount; i++) {
+        if (i === initialFrame) continue;
+        const img = new Image();
+        img.src = getFrameUrl(i);
+        const p = new Promise<void>((resolve) => {
+          img.onload = () => {
+            loaded[i] = img;
+            resolve();
+          };
+          img.onerror = () => resolve();
+        });
+        promises.push(p);
       }
 
-      ctx.fillStyle = "black";
-      ctx.fillRect(0, 0, width, height);
-      ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+      await initialPromise;
+      await Promise.all(promises);
+      setImages(loaded);
     };
 
-    if (images[0]) drawImage(images[0]);
+    loadImages();
+  }, [mounted]);
 
-    // Update draw loop on scroll
-    const unsubscribe = frameIndex.on("change", (latest) => {
-      const currentIdx = Math.min(maxFrames - 1, Math.max(0, Math.floor(latest)));
-      if (images[currentIdx]) {
-        drawImage(images[currentIdx]);
-      }
-    });
+  // Combined Resize and Frame Draw Logic for absolute consistency
+  const drawFrame = useCallback((frameIndex: number) => {
+    if (!canvasRef.current || images.length === 0) return;
+    
+    const canvas = canvasRef.current;
+    const context = canvas.getContext("2d");
+    if (!context) return;
 
-    return () => {
-      window.removeEventListener("resize", updateCanvasSize);
-      unsubscribe();
+    const img = images[frameIndex] || images[80];
+    if (!img || !img.complete) return;
+
+    const dpr = window.devicePixelRatio || 1;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
+
+    // Ensure size is always synced before draw
+    if (canvas.width !== width * dpr || canvas.height !== height * dpr) {
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+    }
+
+    context.setTransform(dpr, 0, 0, dpr, 0, 0); 
+    context.clearRect(0, 0, width, height);
+    
+    // Perfect Matched Center-Cover logic
+    const scale = Math.max(width / img.width, height / img.height);
+    const drawWidth = img.width * scale;
+    const drawHeight = img.height * scale;
+    
+    const x = (width - drawWidth) / 2;
+    const y = (height - drawHeight) / 2; // Mathematical Center by default
+
+    context.drawImage(img, x, y, drawWidth, drawHeight);
+  }, [images]);
+
+  // Main animation loop
+  useEffect(() => {
+    if (!mounted || images.length === 0) return;
+
+    let animId: number;
+    const render = () => {
+      const frameIndex = Math.floor(currentIndex.get());
+      drawFrame(frameIndex);
+      animId = requestAnimationFrame(render);
     };
-  }, [images, frameIndex]);
 
-  const opacity0 = useTransform(scrollYProgress, [0, 0.1, 0.2], [1, 1, 0]);
-  const y0 = useTransform(scrollYProgress, [0, 0.2], [0, -50]);
+    animId = requestAnimationFrame(render);
+    return () => cancelAnimationFrame(animId);
+  }, [mounted, images, drawFrame, currentIndex]);
 
-  const opacity30 = useTransform(scrollYProgress, [0.15, 0.3, 0.45], [0, 1, 0]);
-  const y30 = useTransform(scrollYProgress, [0.15, 0.3, 0.45], [50, 0, -50]);
+  // Storytelling Layers
+  const chapter1Opacity = useTransform(smoothProgress, [0, 0.1, 0.2, 0.3], [1, 1, 1, 0]);
+  const chapter1Scale = useTransform(smoothProgress, [0, 0.3], [1, 1.1]);
+  const chapter1Y = useTransform(smoothProgress, [0, 0.3], [0, -30]);
 
-  const opacity60 = useTransform(scrollYProgress, [0.45, 0.6, 0.75], [0, 1, 0]);
-  const y60 = useTransform(scrollYProgress, [0.45, 0.6, 0.75], [50, 0, -50]);
+  const chapter2Opacity = useTransform(smoothProgress, [0.4, 0.45, 0.6, 0.65], [0, 1, 1, 0]);
+  const chapter2Scale = useTransform(smoothProgress, [0.4, 0.65], [0.95, 1.05]);
+  const chapter2Y = useTransform(smoothProgress, [0.4, 0.65], [30, -30]);
 
-  const scrollHintOpacity = useTransform(scrollYProgress, [0, 0.05], [1, 0]);
+  const chapter3Opacity = useTransform(smoothProgress, [0.75, 0.8, 0.95, 1], [0, 1, 1, 1]);
+  const chapter3Scale = useTransform(smoothProgress, [0.75, 1], [0.95, 1]);
+  const chapter3Y = useTransform(smoothProgress, [0.75, 1], [30, 0]);
+
+  const indicatorOpacity = useTransform(smoothProgress, [0, 0.05], [1, 0]);
 
   return (
-    <div ref={containerRef} className="relative h-[400vh] bg-black">
-      <div className="sticky top-0 h-screen w-full overflow-hidden bg-black z-0">
+    <section 
+      ref={container} 
+      className="relative h-[800vh] bg-black"
+      style={{ opacity: mounted ? 1 : 0 }}
+    >
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
         {mounted && (
           <>
-            {/* Simple loader that doesn't use AnimatePresence */}
-            {isLoading && (
-              <div className="absolute inset-0 z-50 bg-black flex flex-col items-center justify-center gap-6">
-                 <div className="w-16 h-16 border-2 border-white/20 border-t-white rounded-full animate-spin" />
-                 <p className="text-white uppercase tracking-[0.4em] text-[10px] opacity-40">Brewing Experience</p>
-              </div>
-            )}
+            <canvas
+              ref={canvasRef}
+              className="absolute inset-0 block pointer-events-none w-full h-full"
+            />
             
-            <canvas ref={canvasRef} className="absolute inset-0 w-full h-full object-cover" />
-            
-            {/* Overlays */}
-            <div className="absolute inset-0 pointer-events-none flex flex-col justify-center items-center px-6 md:px-16">
+            <div className="absolute inset-0 bg-black/20 z-10 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/80 z-10 pointer-events-none" />
+
+            <div className="relative z-20 h-full w-full flex items-center justify-center p-6 text-center">
               
-              <motion.div 
-                style={{ opacity: opacity0, y: y0 }}
-                className="absolute flex flex-col items-center justify-center text-center text-white"
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
+                style={{ opacity: chapter1Opacity, scale: chapter1Scale, y: chapter1Y }}
+                className="absolute flex flex-col items-center gap-8"
               >
-                <h1 className="text-6xl md:text-[8rem] lg:text-[11rem] font-medium tracking-tighter uppercase leading-[0.85] mb-8">
-                  Singga kopi <br />
-                </h1>
-                <h3 className="text-sm md:text-xl font-light text-zinc-400 tracking-[0.4em] uppercase max-w-lg">
-                  Kopi Dulu Cerita Nyusul
+                <div className="flex flex-col items-center gap-2">
+                  <motion.span 
+                    initial={{ opacity: 0, letterSpacing: "0.2em" }}
+                    animate={{ opacity: 1, letterSpacing: "0.8em" }}
+                    transition={{ delay: 1.2, duration: 1.5 }}
+                    className="text-amber-500/90 uppercase text-[11px] font-medium tracking-widest drop-shadow-md"
+                  >
+                    Est. 2026
+                  </motion.span>
+                  <h3 className="text-[15vw] md:text-[12rem] font-light tracking-tighter text-white uppercase flex flex-col leading-[0.8] drop-shadow-2xl">
+                    <span className="italic font-serif">Singga</span>
+                    <span className="font-bold -mt-2 md:-mt-6">Kopi</span>
+                  </h3>
+                </div>
+                
+                <div className="flex flex-col items-center gap-8">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: "4rem" }}
+                    transition={{ delay: 1.5, duration: 1 }}
+                    className="h-[1px] bg-white/40" 
+                  />
+                  <p className="text-zinc-300 uppercase tracking-[0.5em] text-[10px] md:text-sm font-light max-w-sm drop-shadow-lg leading-relaxed">
+                    scroll ke bawah untuk Coffee Experience
+                  </p>
+                </div>
+              </motion.div>
+
+              <motion.div
+                style={{ opacity: chapter2Opacity, scale: chapter2Scale, y: chapter2Y }}
+                className="absolute flex flex-col items-center gap-6 px-4"
+              >
+                <span className="text-amber-500/80 uppercase tracking-[0.6em] text-[10px] font-medium">Authentic Journey</span>
+                <h3 className="text-5xl md:text-9xl font-light tracking-tight text-white uppercase leading-tight">
+                  The Art of <br /> <span className="italic font-serif text-amber-500/90">Signature</span> Roasting
                 </h3>
+                <p className="max-w-md text-zinc-400 text-xs md:text-sm font-light leading-relaxed">
+                  Every bean is selected with care, honoring the legacy of traditional coffee culture from the heart of Indonesia.
+                </p>
               </motion.div>
 
-              <motion.div 
-                style={{ opacity: opacity30, y: y30 }}
-                className="absolute w-full px-8 md:px-24 flex justify-start text-white"
+              <motion.div
+                style={{ opacity: chapter3Opacity, scale: chapter3Scale, y: chapter3Y }}
+                className="absolute flex flex-col items-center gap-6 px-4"
               >
-               
+                <h3 className="text-6xl md:text-[10rem] font-light tracking-tight text-white uppercase italic leading-none">
+                  Sensory <br /> Perfection
+                </h3>
+                <div className="w-20 h-[1px] bg-amber-500/40" />
+                <p className="max-w-xs text-zinc-300 text-xs md:text-sm uppercase tracking-[0.3em] font-light leading-loose">
+                  Taste the richness of nature <br /> in every single drop.
+                </p>
               </motion.div>
 
-              <motion.div 
-                style={{ opacity: opacity60, y: y60 }}
-                className="absolute w-full px-8 md:px-24 flex justify-end text-right text-white"
-              >
-              </motion.div>
-
-              {/* Scroll Hint */}
-              <motion.div 
-                 initial={{ opacity: 0 }}
-                 animate={{ opacity: [0, 1, 0] }}
-                 transition={{ repeat: Infinity, duration: 2 }}
-                 style={{ opacity: scrollHintOpacity }}
-                 className="absolute bottom-12 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4"
-              >
-                 <p className="text-[10px] uppercase tracking-[0.4em] text-white/40">Scroll</p>
-                 <div className="w-px h-12 bg-gradient-to-b from-white to-transparent" />
-              </motion.div>
             </div>
+
+            <motion.div 
+              style={{ opacity: indicatorOpacity }}
+              className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-4"
+            >
+               <div className="w-[1px] h-20 bg-gradient-to-b from-amber-500/60 via-white/20 to-transparent" />
+            </motion.div>
           </>
         )}
       </div>
-    </div>
+    </section>
   );
 }

@@ -42,7 +42,6 @@ export default function BentoSection() {
             onClick={() => setSelectedImage(menuImage)}
             className="relative group w-full aspect-[3/4] md:aspect-[4/5] max-w-2xl rounded-[2rem] md:rounded-[3rem] overflow-hidden border border-white/10 bg-zinc-950 shadow-2xl cursor-pointer"
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img 
               src={menuImage} 
               alt="Daftar Menu Singga Kopi" 
@@ -97,7 +96,6 @@ export default function BentoSection() {
               <X size={40} />
             </motion.button>
             
-            {/* eslint-disable-next-line @next/next/no-img-element */}
             <motion.img
               initial={{ scale: 0.9, opacity: 0, y: 30 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}

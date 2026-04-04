@@ -6,7 +6,9 @@ export default function Footer() {
   const [year, setYear] = useState(2026); // Default to current year context
   
   useEffect(() => {
-    setYear(new Date().getFullYear());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const timer = setTimeout(() => setYear(new Date().getFullYear()), 0);
+    return () => clearTimeout(timer);
   }, []);
 
   return (
