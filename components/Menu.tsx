@@ -38,6 +38,7 @@ export default function Menu({ isOpen, onClose }: { isOpen: boolean; onClose: ()
     <AnimatePresence>
       {isOpen && (
         <motion.div
+          key="menu"
           variants={menuVariants}
           initial="initial"
           animate="animate"

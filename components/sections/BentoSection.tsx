@@ -83,6 +83,7 @@ export default function BentoSection() {
       <AnimatePresence>
         {selectedImage && (
           <motion.div
+            key="lightbox"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
