@@ -20,7 +20,7 @@ export const Preloader = () => {
       const promises = [];
       for (let i = 1; i <= 20; i++) {
         const img = new Image();
-        img.src = `/sequence/ezgif-frame-${i.toString().padStart(3, "0")}.jpg`;
+        img.src = `/sequence/ezgif-frame-${i.toString().padStart(3, "0")}.webp`;
         promises.push(new Promise((resolve) => (img.onload = resolve)));
       }
       await Promise.all(promises);

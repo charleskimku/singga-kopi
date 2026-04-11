@@ -36,7 +36,7 @@ export default function SequenceScroll() {
     
     const getFrameUrl = (index: number) => {
       const paddedIndex = index.toString().padStart(3, '0');
-      return `/sequence/ezgif-frame-${paddedIndex}.jpg`;
+      return `/sequence/ezgif-frame-${paddedIndex}.webp`;
     };
 
     const loadImages = async () => {
