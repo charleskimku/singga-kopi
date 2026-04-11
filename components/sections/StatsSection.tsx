@@ -58,13 +58,20 @@ export default function StatsSection() {
           >
             {stats.map((stat, i) => (
               <motion.div key={i} variants={itemVariants} className="flex flex-col gap-6 group">
-                <h3 className="text-6xl md:text-8xl font-light tracking-tighter text-white group-hover:text-zinc-400 transition-colors duration-500">
-                  {isInView ? <CountUp start={0} end={stat.num} duration={3} separator="," /> : "0"}
-                  <span className="text-zinc-700">{stat.suffix}</span>
+                <h3 className="text-6xl md:text-8xl font-light tracking-tighter text-white group-hover:text-zinc-400 transition-colors duration-500 flex items-center">
+                  <CountUp 
+                    start={0} 
+                    end={stat.num} 
+                    duration={3} 
+                    separator="," 
+                    enableScrollSpy 
+                    scrollSpyOnce 
+                  />
+                  <span className="text-zinc-700 ml-1" suppressHydrationWarning>{stat.suffix}</span>
                 </h3>
                 <div className="flex items-center gap-4">
                   <span className="w-8 h-[1px] bg-zinc-800 group-hover:w-12 group-hover:bg-white transition-all duration-500" />
-                  <p className="text-zinc-500 uppercase tracking-[0.3em] text-[10px] md:text-xs font-semibold">
+                  <p className="text-zinc-500 uppercase tracking-[0.3em] text-[10px] md:text-xs font-semibold" suppressHydrationWarning>
                     {stat.label}
                   </p>
                 </div>
