@@ -8,7 +8,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Singga kopi | Scrollytelling Experience",
+  title: "Singga kopi",
   description: "Experience the premium world of Singga kopi.",
 };
 

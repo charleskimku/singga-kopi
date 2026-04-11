@@ -205,9 +205,9 @@ export default function SequenceScroll() {
                 style={{ opacity: chapter2Opacity, scale: chapter2Scale, y: chapter2Y }}
                 className="absolute flex flex-col items-center gap-6 px-4"
               >
-                <span className="text-amber-500/80 uppercase tracking-[0.6em] text-[10px] font-medium">Authentic Journey</span>
+                <span className="text-amber-500/80 uppercase tracking-[0.6em] text-[10px] font-medium"></span>
                 <h3 className="text-5xl md:text-9xl font-light tracking-tight text-white uppercase leading-tight">
-                  The Art of <br /> <span className="italic font-serif text-amber-500/90">Signature</span> Roasting
+                  kopi dulu <br /> <span className="italic font-serif text-amber-500/90"> ceri </span> nyusul
                 </h3>
                 <p className="max-w-md text-zinc-400 text-xs md:text-sm font-light leading-relaxed">
                   Every bean is selected with care, honoring the legacy of traditional coffee culture from the heart of Indonesia.

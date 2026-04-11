@@ -11,6 +11,7 @@ export default function Navbar() {
   return (
     <>
       <motion.nav
+        key="navbar-main"
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1, ease: [0.76, 0, 0.24, 1], delay: 0.5 }}
@@ -35,7 +36,7 @@ export default function Navbar() {
             <path d="M28 14 Q29 10 28 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
             <path d="M36 14 Q37 10 36 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
-          <span className="text-xl font-medium tracking-widest uppercase">
+          <span className="text-xl font-medium tracking-widest uppercase" suppressHydrationWarning>
             Singga Kopi
           </span>
         </div>
@@ -45,7 +46,10 @@ export default function Navbar() {
           onClick={() => setIsMenuOpen(true)}
           className="flex items-center gap-2 group cursor-pointer"
         >
-          <span className="uppercase text-sm font-medium tracking-widest hidden md:block group-hover:underline underline-offset-4">
+          <span
+            className="uppercase text-sm font-medium tracking-widest hidden md:block group-hover:underline underline-offset-4"
+            suppressHydrationWarning
+          >
             Menu
           </span>
           <MenuIcon className="w-6 h-6" />

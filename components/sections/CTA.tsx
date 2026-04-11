@@ -47,7 +47,9 @@ export default function CTA() {
           viewport={{ once: true }}
           className="text-6xl md:text-[10rem] font-medium tracking-tighter uppercase leading-[0.9] mb-16 inline-block bg-gradient-to-b from-white to-white/60 bg-clip-text text-transparent"
         >
-          Ready to <br /> Order?
+          <span suppressHydrationWarning>Ready to </span>
+          <br />
+          <span suppressHydrationWarning>Order?</span>
         </motion.h2>
 
         <motion.button
