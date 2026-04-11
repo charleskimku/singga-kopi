@@ -180,7 +180,7 @@ export default function SequenceScroll() {
                     transition={{ delay: 1.2, duration: 1.5 }}
                     className="text-amber-500/90 uppercase text-[11px] font-medium tracking-widest drop-shadow-md"
                   >
-                    Est. 2026
+                    {/* Est. 2026 */}
                   </motion.span>
                   <h3 className="text-[15vw] md:text-[12rem] font-light tracking-tighter text-white uppercase flex flex-col leading-[0.8] drop-shadow-2xl">
                     <span className="italic font-serif">Singga</span>
@@ -211,19 +211,6 @@ export default function SequenceScroll() {
                 </h3>
                 <p className="max-w-md text-zinc-400 text-xs md:text-sm font-light leading-relaxed">
                   Every bean is selected with care, honoring the legacy of traditional coffee culture from the heart of Indonesia.
-                </p>
-              </motion.div>
-
-              <motion.div
-                style={{ opacity: chapter3Opacity, scale: chapter3Scale, y: chapter3Y }}
-                className="absolute flex flex-col items-center gap-6 px-4"
-              >
-                <h3 className="text-6xl md:text-[10rem] font-light tracking-tight text-white uppercase italic leading-none">
-                  Sensory <br /> Perfection
-                </h3>
-                <div className="w-20 h-[1px] bg-amber-500/40" />
-                <p className="max-w-xs text-zinc-300 text-xs md:text-sm uppercase tracking-[0.3em] font-light leading-loose">
-                  Taste the richness of nature <br /> in every single drop.
                 </p>
               </motion.div>
 

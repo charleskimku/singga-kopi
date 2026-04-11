@@ -31,11 +31,6 @@ export default function Testimonials() {
       name: "Yohan Pangalah",
       role: "owner"
     },
-    { 
-      quote: "Ini bukan tentang kopi tapi tentang rasa yang pernah ada.", 
-      name: "Charles Kimku",
-      role: "web developer"
-    },
   ];
 
   return (

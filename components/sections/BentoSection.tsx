@@ -7,7 +7,8 @@ import { X, Maximize2 } from "lucide-react";
 export default function BentoSection() {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  const menuImage = "https://instagram.fdps5-1.fna.fbcdn.net/v/t51.82787-15/630116628_17852429712667880_148569332247822180_n.webp?stp=dst-webp_p640x640_sh0.08&_nc_cat=104&ig_cache_key=MzgyODQ5ODAzMzU5MTU3NjI3Nw%3D%3D.3-ccb7-5&ccb=7-5&_nc_sid=58cdad&efg=eyJ2ZW5jb2RlX3RhZyI6InhwaWRzLjEyMDZ4MjE0NC5zZHIuQzMifQ%3D%3D&_nc_ohc=f-QByG9lRPwQ7kNvwEOzENT&_nc_oc=Adqe01rRf3a0iWi8HAuGw69_5hDAx60Cohgs2j8FVIZNlpMPxGg0Og8OpBbrbePY2_o&_nc_ad=z-m&_nc_cid=0&_nc_zt=23&_nc_ht=instagram.fdps5-1.fna&_nc_gid=L8rAQ9Ia5v2kMU3lEk6tEQ&_nc_ss=7a32e&oh=00_Af2gr4NZGDoglNfQtL-5fDQnrP1qexhtuSJDVpF7M4c6Hw&oe=69D4604E";
+ 
+  const menuImage = "/foto/menu.jpeg";
 
   return (
     <>
