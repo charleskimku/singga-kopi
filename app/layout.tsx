@@ -8,8 +8,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Singga kopi",
-  description: "Experience the premium world of Singga kopi.",
+  title: "Singgah Kopi",
+  description: "Experience the premium world of Singgah Kopi.",
 };
 
 export default function RootLayout({

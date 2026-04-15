@@ -45,7 +45,7 @@ export default function BentoSection() {
           >
             <img 
               src={menuImage} 
-              alt="Daftar Menu Singga Kopi" 
+              alt="Daftar Menu Singgah Kopi" 
               className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:opacity-90 transition-all duration-700 ease-out will-change-transform group-hover:scale-105"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent pointer-events-none" />

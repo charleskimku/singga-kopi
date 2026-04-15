@@ -56,7 +56,7 @@ export const Preloader = () => {
                transition={{ duration: 0.8, delay: 0.2 }}
                className="text-white text-xs uppercase tracking-[0.5em] font-light"
             >
-              Singga Kopi
+              Singgah Kopi
             </motion.h1>
           </div>
         </motion.div>

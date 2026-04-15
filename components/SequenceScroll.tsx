@@ -183,7 +183,7 @@ export default function SequenceScroll() {
                     {/* Est. 2026 */}
                   </motion.span>
                   <h3 className="text-[15vw] md:text-[12rem] font-light tracking-tighter text-white uppercase flex flex-col leading-[0.8] drop-shadow-2xl">
-                    <span className="italic font-serif">Singga</span>
+                    <span className="italic font-serif">Singgah</span>
                     <span className="font-bold -mt-2 md:-mt-6">Kopi</span>
                   </h3>
                 </div>

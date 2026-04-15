@@ -37,7 +37,7 @@ export default function Navbar() {
             <path d="M36 14 Q37 10 36 6" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
           </svg>
           <span className="text-xl font-medium tracking-widest uppercase" suppressHydrationWarning>
-            Singga Kopi
+            Singgah Kopi
           </span>
         </div>
         

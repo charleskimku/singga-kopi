@@ -49,7 +49,7 @@ export default function AboutSection() {
   });
 
   const textWords = useMemo(() =>
-    "Bagi kami, Singga Kopi bukanlah tempat untuk sekadar menikmati kopi, melainkan ruang untuk saling berbagi cerita.".split(" "),
+    "Bagi kami, Singgah Kopi bukanlah tempat untuk sekadar menikmati kopi, melainkan ruang untuk saling berbagi cerita.".split(" "),
     []);
 
   const images = [
@@ -108,7 +108,7 @@ export default function AboutSection() {
                     >
                       <img
                         src={src}
-                        alt="Singga kopi Story"
+                        alt="Singgah kopi Story"
                         className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-1000 ease-out pointer-events-none"
                         draggable={false}
                       />
@@ -177,7 +177,7 @@ export default function AboutSection() {
               exit={{ scale: 0.9, opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
               src={selectedImage}
-              alt="Singga Kopi expanded"
+              alt="Singgah Kopi expanded"
               className="max-w-full max-h-full rounded-xl object-contain shadow-[0_0_50px_rgba(255,255,255,0.1)]"
               onClick={(e) => e.stopPropagation()}
               draggable={false}
